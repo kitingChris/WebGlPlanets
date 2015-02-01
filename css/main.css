@@ -1,0 +1,36 @@
+body {
+  background: black;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+}
+
+#container {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  top: 0px;
+}
+
+#menu {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  padding: 5px;
+}
+
+#stats {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  padding: 5px;
+}
+
+.modal-body {
+  min-height: 400px;
+}
+
+.tab-pane {
+  padding-top: 20px;
+}

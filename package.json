@@ -1,0 +1,12 @@
+{
+  "name": "WebGlPlanets",
+  "version": "0.0.1",
+  "main": "index.html",
+  "window": {
+    "title": "WebGlPlanets",
+    "icon": "icon.png",
+    "toolbar": false,
+    "width": 1200,
+    "height": 800
+  }
+}
