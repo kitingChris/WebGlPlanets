@@ -25,6 +25,35 @@ $(document).ready(function () {
     $('#mainMenu input#SUN_SIZE_RANGE_max').val(SUN_SIZE_RANGE.max);
     $('#mainMenu input#NUM_PLANETS').val(NUM_PLANETS);
 
+    var sysconf_template_row = $('#systemconfigurator table tbody tr:first-of-type').detach();
+
+    $('[data-action="sysconf-add"]').click(function () {
+
+        var new_row = sysconf_template_row.clone();
+
+        var sysconf_type = $('select#sysconf_type option:selected');
+        var sysconf_size = $('input#sysconf_size');
+        var sysconf_position = $('input#sysconf_position');
+        var sysconf_color = $('input#sysconf_color');
+
+        new_row.find('td.type').html(sysconf_type.text());
+        new_row.find('td.type').data('value', sysconf_type.val());
+        new_row.find('td.size').html(sysconf_size.val());
+        new_row.find('td.size').data('value', sysconf_size.val());
+        new_row.find('td.position').html('('+sysconf_position.val()+')');
+        new_row.find('td.position').data('value', sysconf_position.val());
+        new_row.find('td.color').find('span').css('background-color', sysconf_color.val());
+        new_row.find('td.color').data('value', sysconf_color.val());//.replace(/\#/, '0x'));
+
+        new_row.appendTo('#systemconfigurator table tbody');
+
+        $('[data-action="sysconf-remove"]').unbind('click').click(function () {
+            $(this).closest('tr').remove();
+        });
+    });
+
+    var system = [];
+
 
     $('#mainMenu .modal-footer .btn-primary').click(function () {
 
@@ -34,7 +63,10 @@ $(document).ready(function () {
         setTimeout(function() {
 
             switch($('#mainMenu .tab-content .active').attr('id')) {
+
                 case 'random':
+
+                    system.length = 0;
 
                     PLANET_SIZE_RANGE.min = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_min').val());
                     PLANET_SIZE_RANGE.max = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_max').val());
@@ -44,8 +76,53 @@ $(document).ready(function () {
                     SUN_SIZE_RANGE.max = parseInt($('#mainMenu input#SUN_SIZE_RANGE_max').val());
                     NUM_PLANETS = parseInt($('#mainMenu input#NUM_PLANETS').val());
 
+                    system.push({
+                        type: 'Sun',
+                        size: (Math.floor(Math.random() * (SUN_SIZE_RANGE.max - SUN_SIZE_RANGE.min + 1)) + SUN_SIZE_RANGE.min),
+                        position: {x: 0, y: 0, z: 0},
+                        color: '#ffff00'
+                    });
+
+                    for (var i = 0; i < NUM_PLANETS; i++) {
+
+                        var originDistance = Math.floor(Math.random() * (SYSTEM_RADIUS_RANGE.max - SYSTEM_RADIUS_RANGE.min + 1)) + SYSTEM_RADIUS_RANGE.min;
+                        var sizeDistanceFactor = originDistance / SYSTEM_RADIUS_RANGE.max;
+                        var pos = randomSpherePoint(originDistance);
+
+                        system.push({
+                            type: 'Planet',
+                            size: (Math.floor(Math.random() * (PLANET_SIZE_RANGE.max - PLANET_SIZE_RANGE.min + 1) * sizeDistanceFactor) + PLANET_SIZE_RANGE.min),
+                            position: {x: pos.x, y: pos.y, z: pos.z},
+                            color: '#f0f0f0'
+                        });
+
+                    }
+
+
                     clearContainer();
-                    initRandom();
+                    initSystem(system);
+                    animate();
+
+                    break;
+
+                case 'systemconfigurator':
+
+                    system.length = 0;
+
+                    $('#systemconfigurator table tbody tr').each(function () {
+
+                        var pos = $(this).find('td.position').data('value').split(',');
+
+                        system.push({
+                            type: $(this).find('td.type').data('value'),
+                            size: parseInt($(this).find('td.size').data('value')),
+                            position: {x: parseInt(pos[0]), y: parseInt(pos[1]), z: parseInt(pos[2])},
+                            color: $(this).find('td.color').data('value')
+                        });
+                    });
+
+                    clearContainer();
+                    initSystem(system);
                     animate();
 
                     break;
@@ -69,6 +146,7 @@ function clearContainer() {
     $('#stats > *').remove();
 }
 
+/*
 function initRandom() {
 
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
@@ -92,6 +170,8 @@ function initRandom() {
         planet.updateMatrix();
         planet.matrixAutoUpdate = false;
         scene.add(planet);
+
+        console.log(planet);
 
     }
 
@@ -124,33 +204,42 @@ function initRandom() {
     window.addEventListener('resize', onWindowResize, false);
 
 }
+*/
 
-function initJson(json) {
+function initSystem(system) {
 
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     camera.position.z = Math.floor(SYSTEM_RADIUS_RANGE.max / 2);
 
     scene = new THREE.Scene();
 
-    $.each(json, function(idx, obj) {
-        switch (obj.type) {
+    for (i in system) {
+        var obj = system[i];
+
+        switch (obj.type.toUpperCase()) {
             case 'SUN':
-                var sun = new THREE.Mesh(new THREE.SphereGeometry(obj.size, 64, 32), new THREE.MeshLambertMaterial({color: 0xffff00}));
+                var color = new THREE.Color(obj.color);
+                var sun = new THREE.Mesh(new THREE.SphereGeometry(obj.size, 64, 32), new THREE.MeshLambertMaterial({color: color}));
                 sun.position.set(obj.position.x, obj.position.y, obj.position.z);
                 sun.updateMatrix();
                 sun.matrixAutoUpdate = false;
                 scene.add(sun);
+                console.log(planet);
                 break;
             case 'PLANET':
-            default:
-                var planet = new THREE.Mesh(new THREE.SphereGeometry(obj.size, 32, 16), new THREE.MeshLambertMaterial({color: 0xf0f0f0}));
+                var color = new THREE.Color(obj.color);
+                var planet = new THREE.Mesh(new THREE.SphereGeometry(obj.size, 32, 16), new THREE.MeshLambertMaterial({color: color}));
                 planet.position.set(obj.position.x, obj.position.y, obj.position.z);
                 planet.updateMatrix();
                 planet.matrixAutoUpdate = false;
                 scene.add(planet);
+                console.log(planet);
+                break;
+            default:
+                console.error(obj); throw 'the entered object type is not supported';
                 break;
         }
-    });
+    }
 
     cameralight = new THREE.DirectionalLight(0xffffff, 1);
     cameralight.position.set(camera.position.x, camera.position.y, camera.position.z);
@@ -201,7 +290,7 @@ function render() {
 function randomSpherePoint(radius, origin) {
 
     if (typeof origin != 'object') {
-        origin = new THREE.Vector3(0, 0, 0)
+        origin = new THREE.Vector3(0, 0, 0);
     }
 
     var u = Math.random();

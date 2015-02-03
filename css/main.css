@@ -28,9 +28,36 @@ body {
 }
 
 .modal-body {
-  min-height: 400px;
+  height: 450px;
 }
 
 .tab-pane {
   padding-top: 20px;
+}
+
+.table-wrap {
+  height: 368px;
+  overflow-y: auto;
+}
+.table-wrap > table {
+
+}
+
+
+#systemconfigurator td.color {
+  text-align: center
+}
+
+#systemconfigurator td.color > span {
+  display: inline-block;
+  width: 24px;
+  height: 14px;
+  border: 1px inset;
+  margin: 6px;
+}
+
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: 700px !important;
+  }
 }

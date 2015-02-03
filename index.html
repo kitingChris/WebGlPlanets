@@ -5,9 +5,12 @@
         <title>WebGlPlanets</title>
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/bootstrap-table.min.css">
         <link rel="stylesheet" href="css/main.css" />
-        <script src="js/jquery-2.1.3.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script src="js/libs/jquery-2.1.3.min.js"></script>
+        <script src="js/libs/bootstrap.min.js"></script>
+        <script src="js/libs/bootstrap-table.min.js"></script>
+        <script src="js/libs/bootstrap-table-de-DE.min.js"></script>
         <script src="js/libs/Three.js"></script>
         <script src="js/libs/Detector.js"></script>
         <script src="js/libs/Stats.js"></script>
@@ -47,45 +50,90 @@
                                     <div class="form-group">
                                         <label for="PLANET_SIZE_RANGE_min" class="col-sm-4 control-label">PLANET_SIZE_RANGE</label>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_min">
+                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_min" />
                                         </div>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_max">
+                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_max" />
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="SUN_SIZE_RANGE_min" class="col-sm-4 control-label">SUN_SIZE_RANGE</label>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_min">
+                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_min" />
                                         </div>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_max">
+                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_max" />
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="SYSTEM_RADIUS_RANGE_min" class="col-sm-4 control-label">SYSTEM_RADIUS_RANGE</label>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_min">
+                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_min" />
                                         </div>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_max">
+                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_max" />
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="NUM_PLANETS" class="col-sm-4 control-label">NUM_PLANETS</label>
                                         <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="NUM_PLANETS">
+                                            <input type="number" class="form-control" id="NUM_PLANETS" />
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div role="tabpanel" class="tab-pane" id="systemconfigurator">
+
+
+                                    <div class="table-wrap">
+
+
+
+                                        <table class="table table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>Typ</th>
+                                                <th>Größe</th>
+                                                <th>Position</th>
+                                                <th>Farbe</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td class="type">Planet</td>
+                                                <td class="size">50</td>
+                                                <td class="position">(20,0,20)</td>
+                                                <td class="color"><span class="color"></span></td>
+                                                <td><a class="btn btn-sm btn-default pull-right" data-action="sysconf-remove" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
+                                            </tr>
+                                            </tbody>
+                                            <tfoot>
+                                            <td>
+                                                <select class="form-control" id="sysconf_type">
+                                                    <option value="Planet">Planet</option>
+                                                    <option value="Sun">Sun</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="number" class="form-control" style="width: 100px;" id="sysconf_size" value="25" /></td>
+                                            <td><input type="text" class="form-control" style="width: 150px;" id="sysconf_position" pattern="[0-9]+" value="0,0,0" /></td>
+                                            <td><input type="color" class="form-control" id="sysconf_color" value="#ffffff" /></td>
+                                            <td><a class="btn btn-sm btn-default pull-right" data-action="sysconf-add" href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
+                                            </tfoot>
+                                        </table>
+
                                     </div>
 
 
                                 </div>
-                                <div role="tabpanel" class="tab-pane" id="systemconfigurator">...2</div>
+
                                 <div role="tabpanel" class="tab-pane" id="loadsystem">...3</div>
+
                                 <div role="tabpanel" class="tab-pane" id="settings">...4</div>
+
                             </div>
 
                         </div>
