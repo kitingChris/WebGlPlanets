@@ -14,8 +14,19 @@ var SUN_SIZE_RANGE = {min: 120, max: 240};
 
 NUM_PLANETS = 400;
 
+var system = [];
 
-$(document).ready(function () {
+
+$(document).on('change', '.btn-file :file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.trigger('fileselect', [numFiles, label]);
+});
+
+$(document).ready( function() {
+
+    $('div#menu button').trigger('click');
 
     $('#mainMenu input#PLANET_SIZE_RANGE_min').val(PLANET_SIZE_RANGE.min);
     $('#mainMenu input#PLANET_SIZE_RANGE_max').val(PLANET_SIZE_RANGE.max);
@@ -52,8 +63,42 @@ $(document).ready(function () {
         });
     });
 
-    var system = [];
+    $('[data-action="system-save"]').click(function () {
+        var blob = new Blob($('textarea#system').val().split('\n'), {type: "text/x-json;charset=utf-8"});
+        saveAs(blob, "system.json");
+    });
 
+    $('[data-action="system-load"]').click(function () {
+
+        if($('#loadfile').prop("files").length == 1) {
+            var file = $('#loadfile').prop("files")[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var dataPrefix = 'base64,';
+                $('textarea#system').html(atob(e.target.result.substr(e.target.result.lastIndexOf(dataPrefix)+dataPrefix.length)));
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+    });
+
+    $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+
+        var input = $(this).parents('.input-group').find(':text'),
+            log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+        if( input.length ) {
+            input.val(log);
+        } else {
+            if( log ) alert(log);
+        }
+
+    });
+
+    $('#mainMenu').on('show.bs.modal', function () {
+        $('textarea#system').html(JSON.stringify(system));
+    });
 
     $('#mainMenu .modal-footer .btn-primary').click(function () {
 
@@ -126,6 +171,20 @@ $(document).ready(function () {
                     animate();
 
                     break;
+
+
+
+                case 'saveload':
+                    system = JSON.parse($('textarea#system').val());
+
+                    clearContainer();
+                    initSystem(system);
+                    animate();
+
+                    break;
+
+
+
             }
 
             $('#mainMenu').modal('hide');
@@ -145,66 +204,6 @@ function clearContainer() {
     $('#container > *').remove();
     $('#stats > *').remove();
 }
-
-/*
-function initRandom() {
-
-    camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-    camera.position.z = Math.floor(SYSTEM_RADIUS_RANGE.max / 2);
-
-    scene = new THREE.Scene();
-
-
-    for (var i = 0; i < NUM_PLANETS; i++) {
-
-        var originDistance = Math.floor(Math.random() * (SYSTEM_RADIUS_RANGE.max - SYSTEM_RADIUS_RANGE.min + 1)) + SYSTEM_RADIUS_RANGE.min;
-
-        sizeDistanceFactor = originDistance / SYSTEM_RADIUS_RANGE.max;
-
-        var pos = randomSpherePoint(originDistance);
-
-        var size = Math.floor(Math.random() * (PLANET_SIZE_RANGE.max - PLANET_SIZE_RANGE.min + 1) * sizeDistanceFactor) + PLANET_SIZE_RANGE.min;
-
-        var planet = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 16), new THREE.MeshLambertMaterial({color: 0xf0f0f0}));
-        planet.position = pos;
-        planet.updateMatrix();
-        planet.matrixAutoUpdate = false;
-        scene.add(planet);
-
-        console.log(planet);
-
-    }
-
-    var sunsize = Math.floor(Math.random() * (SUN_SIZE_RANGE.max - SUN_SIZE_RANGE.min + 1)) + SUN_SIZE_RANGE.min;
-
-    var sun = new THREE.Mesh(new THREE.SphereGeometry(sunsize, 64, 32), new THREE.MeshLambertMaterial({color: 0xffff00}));
-    sun.position.set(0, 0, 0);
-    scene.add(sun);
-
-    cameralight = new THREE.DirectionalLight(0xffffff, 1);
-    cameralight.position.set(camera.position.x, camera.position.y, camera.position.z);
-    scene.add(cameralight);
-
-    var ambLight = new THREE.AmbientLight(0x010101);
-    scene.add(ambLight);
-
-    stats = new Stats();
-    document.getElementById('stats').appendChild( stats.domElement );
-
-    renderer = new THREE.WebGLRenderer({antialias: false});
-    //renderer.setClearColor( scene.fog.color, 1 );
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    container = document.getElementById('container');
-    container.appendChild(renderer.domElement);
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.addEventListener('change', render);
-
-    window.addEventListener('resize', onWindowResize, false);
-
-}
-*/
 
 function initSystem(system) {
 

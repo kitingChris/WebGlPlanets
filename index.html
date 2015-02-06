@@ -15,6 +15,7 @@
         <script src="js/libs/Detector.js"></script>
         <script src="js/libs/Stats.js"></script>
         <script src="js/libs/OrbitControls.js"></script>
+        <script src="js/libs/FileSaver.min.js"></script>
         <script src="js/libs/KeyboardState.js"></script>
         <script src="js/libs/THREEx.FullScreen.js"></script>
         <script src="js/libs/THREEx.WindowResize.js"></script>
@@ -39,7 +40,7 @@
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" class="active"><a href="#random" aria-controls="random" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Zufall</a></li>
                                 <li role="presentation"><a href="#systemconfigurator" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Konfigurator</a></li>
-                                <li role="presentation"><a href="#loadsystem" aria-controls="messages" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Laden</a></li>
+                                <li role="presentation"><a href="#saveload" aria-controls="messages" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Speichern/Laden</a></li>
                                 <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Einstellungen</a></li>
                             </ul>
 
@@ -130,7 +131,32 @@
 
                                 </div>
 
-                                <div role="tabpanel" class="tab-pane" id="loadsystem">...3</div>
+                                <div role="tabpanel" class="tab-pane" id="saveload">
+
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" readonly="">
+                                                <span class="input-group-btn">
+                                                    <span class="btn btn-default btn-file"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> Durchsuchen<input id="loadfile" type="file"></span>
+                                                    <span class="btn btn-primary btn-file" data-action="system-load"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Laden</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-right">
+                                            <span class="btn btn-primary" data-action="system-save"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Speichern</span>
+                                        </div>
+                                    </div>
+
+                                    &nbsp;
+
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <textarea id="system" rows="14" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+
+                                </div>
 
                                 <div role="tabpanel" class="tab-pane" id="settings">...4</div>
 
