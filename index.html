@@ -19,12 +19,14 @@
         <script src="js/libs/KeyboardState.js"></script>
         <script src="js/libs/THREEx.FullScreen.js"></script>
         <script src="js/libs/THREEx.WindowResize.js"></script>
-        <script src="js/client.js"></script>
+        <script src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+        <script src="js/planetsClient.js"></script>
     </head>
     <body>
         <div id="container"></div>
         <div id="menu">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mainMenu"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button>
+            <button type="button" class="btn btn-primary" id="main-menu" data-toggle="modal" data-target="#mainMenu"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></button>
+            <button type="button" class="btn btn-success play" data-action="simTogglePlay"><span class="glyphicon glyphicon glyphicon-play play" aria-hidden="true"></span><span class="glyphicon glyphicon glyphicon-pause hide pause" aria-hidden="true"></span></button>
         </div>
         <div id="stats"></div>
 
@@ -41,7 +43,7 @@
                                 <li role="presentation" class="active"><a href="#random" aria-controls="random" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Zufall</a></li>
                                 <li role="presentation"><a href="#systemconfigurator" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Konfigurator</a></li>
                                 <li role="presentation"><a href="#saveload" aria-controls="messages" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Speichern/Laden</a></li>
-                                <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Einstellungen</a></li>
+                                <li role="presentation"><a href="#connections" aria-controls="connections" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> Verbindungen</a></li>
                             </ul>
 
                             <!-- Tab panes -->
@@ -95,34 +97,36 @@
 
                                         <table class="table table-striped">
                                             <thead>
-                                            <tr>
-                                                <th>Typ</th>
-                                                <th>Größe</th>
-                                                <th>Position</th>
-                                                <th>Farbe</th>
-                                                <th>&nbsp;</th>
-                                            </tr>
+                                                <tr>
+                                                    <th>Typ</th>
+                                                    <th>Größe</th>
+                                                    <th>Position</th>
+                                                    <th>Farbe</th>
+                                                    <th>&nbsp;</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td class="type">Planet</td>
-                                                <td class="size">50</td>
-                                                <td class="position">(20,0,20)</td>
-                                                <td class="color"><span class="color"></span></td>
-                                                <td><a class="btn btn-sm btn-default pull-right" data-action="sysconf-remove" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
-                                            </tr>
+                                                <tr>
+                                                    <td class="type">Planet</td>
+                                                    <td class="size">50</td>
+                                                    <td class="position">(20,0,20)</td>
+                                                    <td class="color"><span class="color"></span></td>
+                                                    <td><a class="btn btn-sm btn-default pull-right" data-action="sysconfRemoveRow" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
+                                                </tr>
                                             </tbody>
                                             <tfoot>
-                                            <td>
-                                                <select class="form-control" id="sysconf_type">
-                                                    <option value="Planet">Planet</option>
-                                                    <option value="Sun">Sun</option>
-                                                </select>
-                                            </td>
-                                            <td><input type="number" class="form-control" style="width: 100px;" id="sysconf_size" value="25" /></td>
-                                            <td><input type="text" class="form-control" style="width: 150px;" id="sysconf_position" pattern="[0-9]+" value="0,0,0" /></td>
-                                            <td><input type="color" class="form-control" id="sysconf_color" value="#ffffff" /></td>
-                                            <td><a class="btn btn-sm btn-default pull-right" data-action="sysconf-add" href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
+                                                <tr>
+                                                    <td>
+                                                        <select class="form-control" id="sysconf_type">
+                                                            <option value="Planet">Planet</option>
+                                                            <option value="Sun">Sun</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control" style="width: 100px;" id="sysconf_size" value="25" /></td>
+                                                    <td><input type="text" class="form-control" style="width: 150px;" id="sysconf_position" pattern="[0-9]+" value="0,0,0" /></td>
+                                                    <td><input type="color" class="form-control" id="sysconf_color" value="#ffffff" /></td>
+                                                    <td><a class="btn btn-sm btn-default pull-right" data-action="sysconfAddRow" href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
+                                                </tr>
                                             </tfoot>
                                         </table>
 
@@ -139,12 +143,12 @@
                                                 <input type="text" class="form-control" readonly="">
                                                 <span class="input-group-btn">
                                                     <span class="btn btn-default btn-file"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> Durchsuchen<input id="loadfile" type="file"></span>
-                                                    <span class="btn btn-primary btn-file" data-action="system-load"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Laden</span>
+                                                    <span class="btn btn-primary btn-file" data-action="systemLoad"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span> Laden</span>
                                                 </span>
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-right">
-                                            <span class="btn btn-primary" data-action="system-save"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Speichern</span>
+                                            <span class="btn btn-primary" data-action="systemSave"><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span> Speichern</span>
                                         </div>
                                     </div>
 
@@ -158,7 +162,39 @@
 
                                 </div>
 
-                                <div role="tabpanel" class="tab-pane" id="settings">...4</div>
+                                <div role="tabpanel" class="tab-pane" id="connections">
+
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Host</th>
+                                                <th>Port</th>
+                                                <th>Status</th>
+                                                <th>&nbsp;</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="host">localhost</td>
+                                                <td class="port">8080</td>
+                                                <td class="status"><span class="glyphicon glyphicon-remove-circle hide text-danger status-off" aria-hidden="true"></span><span class="glyphicon glyphicon-ok-circle hide text-success status-on" aria-hidden="true"></span></td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-default pull-right" data-action="connectionRemoveRow" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+                                                    <a class="btn btn-sm btn-default pull-right" data-action="connectionRefresh" href="#"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td><input type="text" class="form-control" style="width: 250px;" id="connections_host" value="127.0.0.1" /></td>
+                                                <td><input type="number" class="form-control" style="width: 100px;" id="connections_port" value="8080" /></td>
+                                                <td>&nbsp;</td>
+                                                <td><a class="btn btn-sm btn-default pull-right" data-action="connectionAddRow" href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
 
                             </div>
 
