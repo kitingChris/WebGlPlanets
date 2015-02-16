@@ -20,7 +20,8 @@
         <script src="js/libs/THREEx.FullScreen.js"></script>
         <script src="js/libs/THREEx.WindowResize.js"></script>
         <script src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
-        <script src="js/planetsClient.js"></script>
+        <script src="config.gui.js"></script>
+        <script src="js/planetsGui.js"></script>
     </head>
     <body>
         <div id="container"></div>
@@ -40,55 +41,16 @@
 
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs" role="tablist">
-                                <li role="presentation" class="active"><a href="#random" aria-controls="random" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Zufall</a></li>
-                                <li role="presentation"><a href="#systemconfigurator" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Konfigurator</a></li>
+                                <li role="presentation" class="active"><a href="#systemconfigurator" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Konfigurator</a></li>
+                                <li role="presentation"><a href="#random" aria-controls="random" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Zufall</a></li>
                                 <li role="presentation"><a href="#saveload" aria-controls="messages" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Speichern/Laden</a></li>
                                 <li role="presentation"><a href="#connections" aria-controls="connections" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> Verbindungen</a></li>
                             </ul>
 
                             <!-- Tab panes -->
                             <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="random">
 
-                                    <div class="form-group">
-                                        <label for="PLANET_SIZE_RANGE_min" class="col-sm-4 control-label">PLANET_SIZE_RANGE</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_min" />
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_max" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="SUN_SIZE_RANGE_min" class="col-sm-4 control-label">SUN_SIZE_RANGE</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_min" />
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_max" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="SYSTEM_RADIUS_RANGE_min" class="col-sm-4 control-label">SYSTEM_RADIUS_RANGE</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_min" />
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_max" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="NUM_PLANETS" class="col-sm-4 control-label">NUM_PLANETS</label>
-                                        <div class="col-sm-4">
-                                            <input type="number" class="form-control" id="NUM_PLANETS" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div role="tabpanel" class="tab-pane" id="systemconfigurator">
+                                <div role="tabpanel" class="tab-pane active" id="systemconfigurator">
 
 
                                     <div class="table-wrap">
@@ -135,6 +97,47 @@
 
                                 </div>
 
+
+                                <div role="tabpanel" class="tab-pane" id="random">
+
+                                    <div class="form-group">
+                                        <label for="PLANET_SIZE_RANGE_min" class="col-sm-4 control-label">PLANET_SIZE_RANGE</label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_min" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="PLANET_SIZE_RANGE_max" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="SUN_SIZE_RANGE_min" class="col-sm-4 control-label">SUN_SIZE_RANGE</label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_min" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="SUN_SIZE_RANGE_max" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="SYSTEM_RADIUS_RANGE_min" class="col-sm-4 control-label">SYSTEM_RADIUS_RANGE</label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_min" />
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="SYSTEM_RADIUS_RANGE_max" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="NUM_PLANETS" class="col-sm-4 control-label">NUM_PLANETS</label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="NUM_PLANETS" />
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div role="tabpanel" class="tab-pane" id="saveload">
 
                                     <div class="row">
@@ -175,9 +178,9 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="host">localhost</td>
-                                                <td class="port">8080</td>
-                                                <td class="status"><span class="glyphicon glyphicon-remove-circle hide text-danger status-off" aria-hidden="true"></span><span class="glyphicon glyphicon-ok-circle hide text-success status-on" aria-hidden="true"></span></td>
+                                                <td class="host"></td>
+                                                <td class="port"></td>
+                                                <td class="status"><span class="glyphicon glyphicon-remove-sign hide text-danger status-off" title="Offline" aria-hidden="true"></span><span class="glyphicon glyphicon-info-sign hide text-warning status-busy" title="Beschäftigt" aria-hidden="true"></span><span class="glyphicon glyphicon-ok-sign hide text-success status-idle" title="Online" aria-hidden="true"></span></td>
                                                 <td>
                                                     <a class="btn btn-sm btn-default pull-right" data-action="connectionRemoveRow" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
                                                     <a class="btn btn-sm btn-default pull-right" data-action="connectionRefresh" href="#"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></a>
@@ -187,7 +190,7 @@
                                         <tfoot>
                                             <tr>
                                                 <td><input type="text" class="form-control" style="width: 250px;" id="connections_host" value="127.0.0.1" /></td>
-                                                <td><input type="number" class="form-control" style="width: 100px;" id="connections_port" value="8080" /></td>
+                                                <td><input type="number" class="form-control" style="width: 100px;" id="connections_port" value="8091" /></td>
                                                 <td>&nbsp;</td>
                                                 <td><a class="btn btn-sm btn-default pull-right" data-action="connectionAddRow" href="#"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a></td>
                                             </tr>
@@ -205,8 +208,9 @@
                             <span id="loading" style="display: none"><span class="glyphicon glyphicon-exclamation-sign text-primary" aria-hidden="true"></span> Daten werden geladen...</span>
                         </div>
                         <div class="col-md-7">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Abbrechen</button>
-                            <button type="button" class="btn btn-primary">Übernehmen</button>
+                            <button type="button" class="btn btn-default cancel" data-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-primary apply">Übernehmen</button>
+                            <button type="button" class="btn btn-primary hide ok">OK</button>
                         </div>
                     </div>
                 </div>

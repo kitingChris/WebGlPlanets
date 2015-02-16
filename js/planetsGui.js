@@ -1,54 +1,41 @@
-var container, camera, controls, scene, renderer, cameralight, stats;
+var container, camera, controls, scene, renderer, cameralight, stats, socket;
 
 var sysconf_template_row;
 var connections_template_row;
 
 var SCREEN_WIDTH = window.innerWidth;
 var SCREEN_HEIGHT = window.innerHeight;
-var VIEW_ANGLE = 45;
 var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
-var NEAR = 0.1;
-var FAR = 600000;
-
-
-var PLANET_SIZE_RANGE = {min: 5, max: 80};
-var SYSTEM_RADIUS_RANGE = {min: 500, max: 12000};
-var SUN_SIZE_RANGE = {min: 120, max: 240};
-
-NUM_PLANETS = 400;
 
 var system = [];
 
+var nodes = {};
+
+var STATUS = Object.freeze({IDLE: 1, BUSY:2, OFF: 0});
 
 
-$(document).ready( function() {
-
+$(document).ready(function () {
 
     initGui();
 
-    var socket = io('http://localhost:8090');
+    /*socket = io('http://localhost:'+config.SOCKET_PORT);
 
     socket.on('news', function (data) {
         console.log(data);
-        socket.emit('my other event', { my: 'data' });
-    });
-
-    socket.on('chat', function (data) {
-        alert(data);
-    });
+    });*/
 
 });
 
 function initGui() {
     $('div#menu button#main-menu').trigger('click');
 
-    $('#mainMenu input#PLANET_SIZE_RANGE_min').val(PLANET_SIZE_RANGE.min);
-    $('#mainMenu input#PLANET_SIZE_RANGE_max').val(PLANET_SIZE_RANGE.max);
-    $('#mainMenu input#SYSTEM_RADIUS_RANGE_min').val(SYSTEM_RADIUS_RANGE.min);
-    $('#mainMenu input#SYSTEM_RADIUS_RANGE_max').val(SYSTEM_RADIUS_RANGE.max);
-    $('#mainMenu input#SUN_SIZE_RANGE_min').val(SUN_SIZE_RANGE.min);
-    $('#mainMenu input#SUN_SIZE_RANGE_max').val(SUN_SIZE_RANGE.max);
-    $('#mainMenu input#NUM_PLANETS').val(NUM_PLANETS);
+    $('#mainMenu input#PLANET_SIZE_RANGE_min').val(config.PLANET_SIZE_RANGE.min);
+    $('#mainMenu input#PLANET_SIZE_RANGE_max').val(config.PLANET_SIZE_RANGE.max);
+    $('#mainMenu input#SYSTEM_RADIUS_RANGE_min').val(config.SYSTEM_RADIUS_RANGE.min);
+    $('#mainMenu input#SYSTEM_RADIUS_RANGE_max').val(config.SYSTEM_RADIUS_RANGE.max);
+    $('#mainMenu input#SUN_SIZE_RANGE_min').val(config.SUN_SIZE_RANGE.min);
+    $('#mainMenu input#SUN_SIZE_RANGE_max').val(config.SUN_SIZE_RANGE.max);
+    $('#mainMenu input#NUM_PLANETS').val(config.NUM_PLANETS);
 
     sysconf_template_row = $('#systemconfigurator table tbody tr:first-of-type').detach();
     connections_template_row = $('#connections table tbody tr:first-of-type').detach();
@@ -63,25 +50,42 @@ function initGui() {
 
     $('[data-action="systemLoad"]').click(systemLoad);
 
-    $('.btn-file :file').on('fileselect', fileselect);
+    $('.btn-file :file').on('fileSelect', fileSelect);
 
-    $('.btn-file :file').on('change', filechange);
+    $('.btn-file :file').on('change', fileChange);
 
     $('#mainMenu').on('show.bs.modal', loadTextareaSystem);
+
+    $('a[data-toggle="tab"]').on('show.bs.tab', showTab);
+
 
     $('#mainMenu .modal-footer .btn-primary').click(apply);
 
 }
 
-function fileselect(event, numFiles, label) {
+function showTab(event) {
+    switch($(event.target).attr('href')) {
+        case '#connections':
+            $('.modal-footer button.apply').addClass('hide');
+            $('.modal-footer button.cancel').addClass('hide');
+            $('.modal-footer button.ok').removeClass('hide');
+            break;
+        default:
+            $('.modal-footer button.apply').removeClass('hide');
+            $('.modal-footer button.cancel').removeClass('hide');
+            $('.modal-footer button.ok').addClass('hide');
+    }
+}
+
+function fileSelect(event, numFiles, label) {
 
     var input = $(this).parents('.input-group').find(':text'),
         log = numFiles > 1 ? numFiles + ' files selected' : label;
 
-    if( input.length ) {
+    if (input.length) {
         input.val(log);
     } else {
-        if( log ) alert(log);
+        if (log) alert(log);
     }
 }
 
@@ -89,11 +93,11 @@ function loadTextareaSystem() {
     $('textarea#system').html(JSON.stringify(system));
 }
 
-function filechange() {
+function fileChange() {
     var input = $(this),
         numFiles = input.get(0).files ? input.get(0).files.length : 1,
         label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-    input.trigger('fileselect', [numFiles, label]);
+    input.trigger('fileSelect', [numFiles, label]);
 }
 
 function systemSave() {
@@ -102,12 +106,13 @@ function systemSave() {
 }
 
 function systemLoad() {
-    if($('#loadfile').prop("files").length == 1) {
+    if ($('#loadfile').prop("files").length == 1) {
         var file = $('#loadfile').prop("files")[0];
+        console.log(file);
         var reader = new FileReader();
         reader.onload = function (e) {
             var dataPrefix = 'base64,';
-            $('textarea#system').html(atob(e.target.result.substr(e.target.result.lastIndexOf(dataPrefix)+dataPrefix.length)));
+            $('textarea#system').html(atob(e.target.result.substr(e.target.result.lastIndexOf(dataPrefix) + dataPrefix.length)));
         };
 
         reader.readAsDataURL(file);
@@ -121,8 +126,8 @@ function clearContainer() {
 
 function initSystem(system) {
 
-    camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-    camera.position.z = Math.floor(SYSTEM_RADIUS_RANGE.max / 2);
+    camera = new THREE.PerspectiveCamera(config.VIEW_ANGLE, ASPECT, config.NEAR, config.FAR);
+    camera.position.z = Math.floor(config.SYSTEM_RADIUS_RANGE.max / 2);
 
     scene = new THREE.Scene();
 
@@ -149,7 +154,8 @@ function initSystem(system) {
                 //console.log(planet);
                 break;
             default:
-                console.error(obj); throw 'the entered object type is not supported';
+                console.error(obj);
+                throw 'the entered object type is not supported';
                 break;
         }
     }
@@ -162,7 +168,7 @@ function initSystem(system) {
     scene.add(ambLight);
 
     stats = new Stats();
-    document.getElementById('stats').appendChild( stats.domElement );
+    document.getElementById('stats').appendChild(stats.domElement);
 
     renderer = new THREE.WebGLRenderer({antialias: false});
     //renderer.setClearColor( scene.fog.color, 1 );
@@ -199,7 +205,6 @@ function render() {
 }
 
 
-
 function randomSpherePoint(radius, origin) {
 
     if (typeof origin != 'object') {
@@ -232,8 +237,8 @@ function sysconfAddRow() {
     new_row.find('td.type').html(sysconf_type.text());
     new_row.find('td.type').data('value', sysconf_type.val());
     new_row.find('td.size').html(sysconf_size.val());
-    new_row.find('td.size').data('value', sysconf_size.val());
-    new_row.find('td.position').html('('+sysconf_position.val()+')');
+    new_row.find('td.size').data('value', parseInt(sysconf_size.val()));
+    new_row.find('td.position').html('(' + sysconf_position.val() + ')');
     new_row.find('td.position').data('value', sysconf_position.val());
     new_row.find('td.color').find('span').css('background-color', sysconf_color.val());
     new_row.find('td.color').data('value', sysconf_color.val());//.replace(/\#/, '0x'));
@@ -249,30 +254,32 @@ function sysconfRemoveRow() {
 
 function connectionAddRow() {
 
-    var connections_host = $('input#connections_host');
-    var connections_port = $('input#connections_port');
+    var host = $('input#connections_host').val();
+    var port = parseInt($('input#connections_port').val());
+
+    var hostPort = host + ':' + port;
 
     var duplicate = false;
-    $('#connections table tbody tr').each(function() {
-        if($(this).data('host-port') == connections_host.val()+':'+connections_port.val()) {
+    $('#connections table tbody tr').each(function () {
+        if ($(this).data('host-port') == hostPort) {
             duplicate = true;
             return false;
         }
     });
 
-    if(duplicate === true) {
+    if (duplicate === true) {
         return false;
     }
 
     var new_row = connections_template_row.clone();
 
-    new_row.find('td.host').html(connections_host.val());
-    new_row.find('td.host').data('value', connections_host.val());
-    new_row.find('td.port').html(connections_port.val());
-    new_row.find('td.port').data('value', connections_port.val());
+    new_row.find('td.host').html(host);
+    new_row.find('td.host').data('value', host);
+    new_row.find('td.port').html(port);
+    new_row.find('td.port').data('value', port);
     new_row.find('td.status').find('span.status-on').show();
     new_row.find('td.status').find('span.status-off').show();
-    new_row.data('host-port', connections_host.val()+':'+connections_port.val());
+    new_row.data('host-port', hostPort);
 
     new_row.find('[data-action="connectionRemoveRow"]').click(connectionRemoveRow);
 
@@ -280,29 +287,71 @@ function connectionAddRow() {
 
     new_row.appendTo('#connections table tbody');
 
-    new_row.find('[data-action="connections-refresh"]').trigger('click');
+    $('input#connections_port').val(port+1);
+
+    //socket.emit('connectNode', { host: host, port: parseInt(port) });
+
+    nodes[hostPort] = {
+        host: host,
+        port: port,
+        online: false,
+        lastping: 0,
+        socket: io.connect('http://'+hostPort)
+    };
+
+    nodes[hostPort].socket.on('nodeStatus', function (data) {
+        console.log(data);
+        setConnectionState(hostPort, data.status);
+    });
+
+    setTimeout(function(){new_row.find('[data-action="connectionRefresh"]').trigger('click');}, 200);
+}
+
+function setConnectionState(hostPort, status) {
+    $('#connections table tbody tr').each(function() {
+        if($(this).data('host-port') == hostPort) {
+            switch(status) {
+                case STATUS.IDLE:
+                    $(this).find('td.status span').addClass('hide');
+                    $(this).find('td.status span.status-idle').removeClass('hide');
+                    break;
+                case STATUS.BUSY:
+                    $(this).find('td.status span').addClass('hide');
+                    $(this).find('td.status span.status-busy').removeClass('hide');
+                    break;
+                case STATUS.OFF:
+                    $(this).find('td.status span').addClass('hide');
+                    $(this).find('td.status span.status-off').removeClass('hide');
+                    break;
+            }
+        }
+    });
 }
 
 function connectionRefresh() {
-    var host = $(this).closest('tr').find('td.host').data('value');
-    var port = $(this).closest('tr').find('td.port').data('value');
 
-    if(getStatus(host, port) == 1) {
-        console.log($(this).closest('tr').find('td.status span.status-on'));
-        $(this).closest('tr').find('td.status span.status-on').removeClass('hide');
-        $(this).closest('tr').find('td.status span.status-off').addClass('hide');
-    } else {
-        $(this).closest('tr').find('td.status span.status-on').addClass('hide');
-        $(this).closest('tr').find('td.status span.status-off').removeClass('hide');
+    console.log('send getNodeStatus');
+
+    var hostPort = $(this).closest('tr').data('host-port');
+
+    if(nodes[hostPort].socket.connected == true) {
+        nodes[hostPort].socket.emit('getNodeStatus', {hostPort: hostPort});
     }
+    else {
+        setConnectionState(hostPort, STATUS.OFF);
+    }
+
 }
 
 function connectionRemoveRow() {
+
+    var hostPort = $(this).closest('tr').data('host-port');
+    delete nodes[hostPort];
     $(this).closest('tr').remove();
 }
 
 function simTogglePlay() {
-    if($(this).hasClass('play')) {
+    if ($(this).hasClass('play')) {
         alert('play');
     }
     else {
@@ -317,9 +366,9 @@ function apply() {
     $('#mainMenu .modal-footer .btn').attr('disabled', true);
     $('span#loading').show();
 
-    setTimeout(function() {
+    setTimeout(function () {
 
-        switch($('#mainMenu .tab-content .active').attr('id')) {
+        switch ($('#mainMenu .tab-content .active').attr('id')) {
 
             case 'random':
                 applyRandom();
@@ -342,36 +391,36 @@ function apply() {
         $('#mainMenu .modal-footer .btn').removeAttr('disabled');
         $('span#loading').hide();
 
-    },50);
+    }, 50);
 }
 
 function applyRandom() {
     system.length = 0;
 
-    PLANET_SIZE_RANGE.min = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_min').val());
-    PLANET_SIZE_RANGE.max = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_max').val());
-    SYSTEM_RADIUS_RANGE.min = parseInt($('#mainMenu input#SYSTEM_RADIUS_RANGE_min').val());
-    SYSTEM_RADIUS_RANGE.max = parseInt($('#mainMenu input#SYSTEM_RADIUS_RANGE_max').val());
-    SUN_SIZE_RANGE.min = parseInt($('#mainMenu input#SUN_SIZE_RANGE_min').val());
-    SUN_SIZE_RANGE.max = parseInt($('#mainMenu input#SUN_SIZE_RANGE_max').val());
-    NUM_PLANETS = parseInt($('#mainMenu input#NUM_PLANETS').val());
+    config.PLANET_SIZE_RANGE.min = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_min').val());
+    config.PLANET_SIZE_RANGE.max = parseInt($('#mainMenu input#PLANET_SIZE_RANGE_max').val());
+    config.SYSTEM_RADIUS_RANGE.min = parseInt($('#mainMenu input#SYSTEM_RADIUS_RANGE_min').val());
+    config.SYSTEM_RADIUS_RANGE.max = parseInt($('#mainMenu input#SYSTEM_RADIUS_RANGE_max').val());
+    config.SUN_SIZE_RANGE.min = parseInt($('#mainMenu input#SUN_SIZE_RANGE_min').val());
+    config.SUN_SIZE_RANGE.max = parseInt($('#mainMenu input#SUN_SIZE_RANGE_max').val());
+    config.NUM_PLANETS = parseInt($('#mainMenu input#NUM_PLANETS').val());
 
     system.push({
         type: 'Sun',
-        size: (Math.floor(Math.random() * (SUN_SIZE_RANGE.max - SUN_SIZE_RANGE.min + 1)) + SUN_SIZE_RANGE.min),
+        size: (Math.floor(Math.random() * (config.SUN_SIZE_RANGE.max - config.SUN_SIZE_RANGE.min + 1)) + config.SUN_SIZE_RANGE.min),
         position: {x: 0, y: 0, z: 0},
         color: '#ffff00'
     });
 
-    for (var i = 0; i < NUM_PLANETS; i++) {
+    for (var i = 0; i < config.NUM_PLANETS; i++) {
 
-        var originDistance = Math.floor(Math.random() * (SYSTEM_RADIUS_RANGE.max - SYSTEM_RADIUS_RANGE.min + 1)) + SYSTEM_RADIUS_RANGE.min;
-        var sizeDistanceFactor = originDistance / SYSTEM_RADIUS_RANGE.max;
+        var originDistance = Math.floor(Math.random() * (config.SYSTEM_RADIUS_RANGE.max - config.SYSTEM_RADIUS_RANGE.min + 1)) + config.SYSTEM_RADIUS_RANGE.min;
+        var sizeDistanceFactor = originDistance / config.SYSTEM_RADIUS_RANGE.max;
         var pos = randomSpherePoint(originDistance);
 
         system.push({
             type: 'Planet',
-            size: (Math.floor(Math.random() * (PLANET_SIZE_RANGE.max - PLANET_SIZE_RANGE.min + 1) * sizeDistanceFactor) + PLANET_SIZE_RANGE.min),
+            size: (Math.floor(Math.random() * (config.PLANET_SIZE_RANGE.max - config.PLANET_SIZE_RANGE.min + 1) * sizeDistanceFactor) + config.PLANET_SIZE_RANGE.min),
             position: {x: pos.x, y: pos.y, z: pos.z},
             color: '#f0f0f0'
         });

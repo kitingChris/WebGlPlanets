@@ -1,7 +1,7 @@
 {
   "name": "WebGlPlanets",
   "version": "0.0.1",
-  "main": "public/index.html",
+  "main": "index.html",
   "window": {
     "title": "WebGlPlanets",
     "icon": "icon.png",
